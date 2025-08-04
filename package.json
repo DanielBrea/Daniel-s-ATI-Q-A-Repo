@@ -1,0 +1,9 @@
+{
+  "name": "notion-gpt-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "@notionhq/client": "^2.2.5"
+  }
+}
