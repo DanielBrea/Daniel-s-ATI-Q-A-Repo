@@ -32,12 +32,15 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ success: true, id: response.id });
   } catch (error) {
+    console.error("Detailed Notion API error:", error);
     res.status(500).json({
       message: "Notion API error",
       error: {
         status: error.status,
         code: error.code,
-        body: error.body
+        message: error.message,
+        body: error.body,
+        response: error.response?.data || null
       }
     });
   }
