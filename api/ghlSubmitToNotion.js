@@ -8,10 +8,15 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // ✅ Add this to see what's being sent by GHL
     console.log('Webhook Payload:', req.body);
 
-    const { name, source, inquiryType, inquiryText, adminNotes } = req.body;
+    const {
+      Name: name,
+      source,
+      inquiryType,
+      inquiryText,
+      adminNotes
+    } = req.body.customData || {};
 
     const response = await notion.pages.create({
       parent: { database_id: process.env.NOTION_DATABASE_ID },
