@@ -15,10 +15,10 @@ module.exports = async (req, res) => {
       inquiryType,
       inquiryText,
       adminNotes,
-      'Inquiry Source': rawInquirySource
+      inquiry_source // ✅ updated key to match GHL
     } = req.body.customData || {};
 
-    const inquirySource = (rawInquirySource || '').trim(); // ✅ Clean whitespace
+    const inquirySource = (inquiry_source || '').trim(); // ✅ Clean whitespace
 
     // 🔍 DEBUG LOGS
     console.log(`🔍 Inquiry Source received: [${inquirySource}]`);
