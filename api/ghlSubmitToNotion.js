@@ -11,8 +11,8 @@ module.exports = async (req, res) => {
     console.log('Webhook Payload:', req.body);
 
     const {
-      Name: name,
-      source,
+      name,                    // ✅ lowercase
+      inquiry_source,
       inquiryType,
       inquiryText,
       adminNotes
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
           title: [{ type: 'text', text: { content: name || '' } }]
         },
         'Source': {
-          select: { name: source || 'Other' }
+          select: { name: inquiry_source || 'Other' }
         },
         'Inquiry Type': {
           select: { name: inquiryType || 'Question (Tech Support)' }
