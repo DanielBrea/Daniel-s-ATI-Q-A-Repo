@@ -8,13 +8,16 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { Name, source, inquiryType, inquiryText } = req.body;
+    // ✅ Add this to see what's being sent by GHL
+    console.log('Webhook Payload:', req.body);
+
+    const { name, source, inquiryType, inquiryText, adminNotes } = req.body;
 
     const response = await notion.pages.create({
       parent: { database_id: process.env.NOTION_DATABASE_ID },
       properties: {
         'Name': {
-          title: [{ type: 'text', text: { content: Name || '' } }]
+          title: [{ type: 'text', text: { content: name || '' } }]
         },
         'Source': {
           select: { name: source || 'Other' }
@@ -24,6 +27,9 @@ module.exports = async (req, res) => {
         },
         'Inquiry Text': {
           rich_text: [{ type: 'text', text: { content: inquiryText || '' } }]
+        },
+        'Admin Notes / Comments': {
+          rich_text: [{ type: 'text', text: { content: adminNotes || '' } }]
         },
         'Status': {
           select: { name: 'Needs Review' }
