@@ -12,6 +12,12 @@ module.exports = async (req, res) => {
     const name = page.properties.Name?.title[0]?.text?.content || '(No Name)';
     const source = page.properties.Source?.select?.name || '(No Source)';
 
+    // ✅ Decide Status: use "Skipped" if finalResponse is "skip" (case-insensitive), otherwise default
+    const statusValue =
+      (finalResponse || '').trim().toLowerCase() === 'skip'
+        ? 'Skipped'
+        : newStatus || 'Approved To Submit To Client';
+
     // 📝 Step 2: Update Notion properties
     await notion.pages.update({
       page_id: id,
@@ -23,7 +29,7 @@ module.exports = async (req, res) => {
           rich_text: [{ type: 'text', text: { content: finalResponse || '' } }]
         },
         'Status': {
-          select: { name: newStatus || 'Approved To Submit To Client' }
+          select: { name: statusValue }
         }
       }
     });
