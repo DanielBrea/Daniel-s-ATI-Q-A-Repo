@@ -15,17 +15,12 @@ module.exports = async (req, res) => {
       inquiryType,
       inquiryText,
       adminNotes,
-      source: rawInquirySource
+      ['Inquiry Source']: rawInquirySource // ✅ Correct field
     } = req.body.customData || {};
 
-    let inquirySource = (rawInquirySource || '').trim();
+    const inquirySource = (rawInquirySource || '').trim();
 
-    // ✅ Fix: Hardcoded remap for the one GHL source label that breaks Notion
-    if (inquirySource.toLowerCase().includes("q&a & communications")) {
-      inquirySource = 'ATI Community';
-    }
-
-    // 🔍 DEBUG LOG
+    // 🔍 DEBUG LOGS
     console.log(`🔍 Inquiry Source used: [${inquirySource}]`);
     console.log('All customData keys:', Object.keys(req.body.customData || {}));
 
