@@ -15,8 +15,11 @@ module.exports = async (req, res) => {
       inquiryType,
       inquiryText,
       adminNotes,
-      'Inquiry Source': inquirySource // ✅ This is the only one with space
+      'Inquiry Source': rawInquirySource
     } = req.body.customData || {};
+
+    const inquirySource = (rawInquirySource || '').trim(); // ✅ Clean whitespace
+    console.log('Inquiry Source received from GHL:', inquirySource);
 
     const response = await notion.pages.create({
       parent: { database_id: process.env.NOTION_DATABASE_ID },
