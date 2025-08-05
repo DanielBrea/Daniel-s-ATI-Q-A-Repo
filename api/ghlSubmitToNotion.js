@@ -15,10 +15,10 @@ module.exports = async (req, res) => {
       inquiryType,
       inquiryText,
       adminNotes,
-      ['Inquiry Source']: rawInquirySource // ✅ Correct field
+      ['Inquiry Source']: rawInquirySource // ✅ Fix: correct key from payload
     } = req.body.customData || {};
 
-    const inquirySource = (rawInquirySource || '').trim();
+    const inquirySource = (rawInquirySource || '').trim(); // ✅ Clean it
 
     // 🔍 DEBUG LOGS
     console.log(`🔍 Inquiry Source used: [${inquirySource}]`);
@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
           title: [{ type: 'text', text: { content: Name || '' } }]
         },
         'Source': {
-          select: { name: inquirySource || 'Other' }
+          select: { name: inquirySource || 'Other' } // ✅ No mapping logic needed
         },
         'Inquiry Type': {
           select: { name: inquiryType || 'Question (Tech Support)' }
