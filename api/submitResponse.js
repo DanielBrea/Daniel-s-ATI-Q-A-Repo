@@ -1,5 +1,5 @@
 const { Client } = require('@notionhq/client');
-const axios = require('axios'); // ✅ NEW: Slack webhook support
+const axios = require('axios');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -7,6 +7,12 @@ module.exports = async (req, res) => {
   try {
     const { id, gptResponse, finalResponse, newStatus } = req.body;
 
+    // 🔍 Step 1: Retrieve Notion page to get Name + Source
+    const page = await notion.pages.retrieve({ page_id: id });
+    const name = page.properties.Name?.title[0]?.text?.content || '(No Name)';
+    const source = page.properties.Source?.select?.name || '(No Source)';
+
+    // 📝 Step 2: Update Notion properties
     await notion.pages.update({
       page_id: id,
       properties: {
@@ -22,17 +28,22 @@ module.exports = async (req, res) => {
       }
     });
 
-    // ✅ NEW: Send Slack notification
+    // 📣 Step 3: Post to Slack with full context
     try {
-      await axios.post('https://hooks.slack.com/services/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', {
-        text: `✅ *New Approved Response Submitted*\n🧑‍💻 *Entry ID:* ${id}\n💬 *Response:* ${finalResponse}`
+      const slackRes = await axios.post('https://hooks.slack.com/services/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', {
+        text: `✅ *New Approved Response Submitted*\n👤 *Name:* ${name}\n💬 *Source:* ${source}\n🧠 *Response:* ${finalResponse}`
       });
+      console.log('Slack posted:', slackRes.status, slackRes.data);
     } catch (slackError) {
       console.error('Slack notification failed:', slackError.message);
+      if (slackError.response) {
+        console.error('Slack response details:', slackError.response.status, slackError.response.data);
+      }
     }
 
     res.status(200).json({ success: true });
   } catch (err) {
+    console.error('Notion submission failed:', err.message);
     res.status(500).json({ error: err.message });
   }
 };
