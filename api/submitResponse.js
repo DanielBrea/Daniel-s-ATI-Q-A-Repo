@@ -36,7 +36,12 @@ module.exports = async (req, res) => {
 
     // 📣 Step 3: Post to Slack with full context
     try {
-      const slackRes = await axios.post('https://hooks.slack.com/services/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', {
+      const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
+      if (!slackWebhookUrl) {
+        throw new Error('Missing SLACK_WEBHOOK_URL in environment variables.');
+      }
+
+      const slackRes = await axios.post(slackWebhookUrl, {
         text: `✅ *New Approved Response Submitted*\n👤 *Name:* ${name}\n💬 *Source:* ${source}\n🧠 *Response:* ${finalResponse}`
       });
       console.log('Slack posted:', slackRes.status, slackRes.data);
