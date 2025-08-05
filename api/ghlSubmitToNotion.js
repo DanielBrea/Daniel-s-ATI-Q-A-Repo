@@ -12,10 +12,10 @@ module.exports = async (req, res) => {
 
     const {
       Name,
-      'Inquiry Source': inquirySource, // ✅ Correct key to match GHL
-      'Inquiry Type': inquiryType,
-      'Inquiry Text': inquiryText,
-      'Admin Notes': adminNotes
+      inquiryType,
+      inquiryText,
+      adminNotes,
+      'Inquiry Source': inquirySource // ✅ This is the only one with space
     } = req.body.customData || {};
 
     const response = await notion.pages.create({
