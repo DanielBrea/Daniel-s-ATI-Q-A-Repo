@@ -15,31 +15,13 @@ module.exports = async (req, res) => {
       inquiryType,
       inquiryText,
       adminNotes,
-      source: rawInquirySource  // ✅ Corrected key from payload
+      source: rawInquirySource
     } = req.body.customData || {};
 
-    const inquirySource = (rawInquirySource || '').trim(); // ✅ Clean whitespace
+    const inquirySource = (rawInquirySource || '').trim();
 
-    // ✅ Map GHL value to Notion dropdown option
-    const SOURCE_MAPPING = {
-      'ATI Community': 'ATI Community',
-      'eMail': 'eMail',
-      'CRM SMS': 'CRM SMS',
-      'IG': 'IG',
-      'FB': 'FB',
-      'TikTok': 'TikTok',
-      'WhatsApp': 'WhatsApp',
-      'X': 'X',
-      'LI': 'LI',
-      'YT': 'YT',
-      'Other': 'Other',
-      "daniel's ati q&a & communications form": 'ATI Community' // Fallback
-    };
-
-    const normalizedSource = SOURCE_MAPPING[inquirySource] || 'Other';
-
-    // 🔍 DEBUG LOGS
-    console.log(`🔍 Inquiry Source received: [${inquirySource}] → Mapped to: [${normalizedSource}]`);
+    // 🔍 DEBUG LOG
+    console.log(`🔍 Inquiry Source used directly: [${inquirySource}]`);
     console.log('All customData keys:', Object.keys(req.body.customData || {}));
 
     const response = await notion.pages.create({
@@ -49,7 +31,7 @@ module.exports = async (req, res) => {
           title: [{ type: 'text', text: { content: Name || '' } }]
         },
         'Source': {
-          select: { name: normalizedSource }
+          select: { name: inquirySource || 'Other' }
         },
         'Inquiry Type': {
           select: { name: inquiryType || 'Question (Tech Support)' }
