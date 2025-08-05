@@ -8,13 +8,13 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { name, source, inquiryType, inquiryText } = req.body;
+    const { Name, source, inquiryType, inquiryText } = req.body;
 
     const response = await notion.pages.create({
-      parent: { database_id: process.env.NOTION_DATABASE_ID }, // your Q&A tracker ID
+      parent: { database_id: process.env.NOTION_DATABASE_ID },
       properties: {
         'Name': {
-          title: [{ type: 'text', text: { content: name || '' } }]
+          title: [{ type: 'text', text: { content: Name || '' } }]
         },
         'Source': {
           select: { name: source || 'Other' }
