@@ -5,6 +5,9 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 module.exports = async (req, res) => {
   try {
+    // 🐛 Log the full incoming request body for debugging
+    console.log('🔍 Incoming Payload:', JSON.stringify(req.body, null, 2));
+
     const { id, gptResponse, finalResponse, newStatus } = req.body;
 
     // 🔍 Step 1: Retrieve Notion page to get Name, Source, and Inquiry Text
