@@ -11,11 +11,11 @@ module.exports = async (req, res) => {
     console.log('Webhook Payload:', req.body);
 
     const {
-      Name,                    // ✅ lowercase
-      inquiry_source,
-      inquiryType,
-      inquiryText,
-      adminNotes
+      Name,
+      'Inquiry Source': inquirySource, // ✅ Correct key to match GHL
+      'Inquiry Type': inquiryType,
+      'Inquiry Text': inquiryText,
+      'Admin Notes': adminNotes
     } = req.body.customData || {};
 
     const response = await notion.pages.create({
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
           title: [{ type: 'text', text: { content: Name || '' } }]
         },
         'Source': {
-          select: { name: inquiry_source || 'Other' }
+          select: { name: inquirySource || 'Other' }
         },
         'Inquiry Type': {
           select: { name: inquiryType || 'Question (Tech Support)' }
