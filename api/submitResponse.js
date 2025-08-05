@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
 
     // 📣 Step 3: Post to Slack with full context
     try {
-      const slackRes = await axios.post('https://hooks.slack.com/services/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', {
+      const slackRes = await axios.post('https://hooks.slack.com/services/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', {
         text: `✅ *New Approved Response Submitted*\n👤 *Name:* ${name}\n💬 *Source:* ${source}\n🧠 *Response:* ${finalResponse}`
       });
       console.log('Slack posted:', slackRes.status, slackRes.data);
