@@ -19,7 +19,10 @@ module.exports = async (req, res) => {
     } = req.body.customData || {};
 
     const inquirySource = (rawInquirySource || '').trim(); // ✅ Clean whitespace
-    console.log('Inquiry Source received from GHL:', inquirySource);
+
+    // 🔍 DEBUG LOGS
+    console.log(`🔍 Inquiry Source received: [${inquirySource}]`);
+    console.log('All customData keys:', Object.keys(req.body.customData || {}));
 
     const response = await notion.pages.create({
       parent: { database_id: process.env.NOTION_DATABASE_ID },
