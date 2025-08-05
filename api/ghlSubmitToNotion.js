@@ -7,24 +7,15 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const payload = req.body;
-    const custom = payload.customData || {};
+    const body = req.body;
+    const custom = body.customData || {};
 
-    // Debug
-    console.log('Payload Keys:', Object.keys(payload));
-    console.log('CustomData Keys:', Object.keys(custom));
+    // Grab from correct source:
+    const inquirySource = (body['Inquiry Source'] || '').trim();
 
-    // Find the value that looks like a dropdown
-    const allDropdownKeys = Object.keys(custom).filter(key =>
-      ['source', 'Source', 'inquiry source', 'Inquiry Source', 'How did you hear', 'platform'].some(x =>
-        key.toLowerCase().includes(x.toLowerCase())
-      )
-    );
-
-    const guessedSourceKey = allDropdownKeys[0]; // fallback to first match
-    const inquirySource = (guessedSourceKey && custom[guessedSourceKey]) ? custom[guessedSourceKey].trim() : 'Other';
-
-    console.log(`🔍 Guessed Source Key: [${guessedSourceKey}] → Value: [${inquirySource}]`);
+    // Debugging
+    console.log('🔍 Inquiry Source from body:', inquirySource);
+    console.log('CustomData Keys:', Object.keys(custom || {}));
 
     const response = await notion.pages.create({
       parent: { database_id: process.env.NOTION_DATABASE_ID },
@@ -52,7 +43,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ success: true, id: response.id });
   } catch (err) {
-    console.error('🚨 Notion write error:', err.message);
+    console.error('❌ Notion write error:', err.message);
     res.status(500).json({ error: err.message });
   }
 };
