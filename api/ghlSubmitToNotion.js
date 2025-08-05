@@ -18,10 +18,15 @@ module.exports = async (req, res) => {
       source: rawInquirySource
     } = req.body.customData || {};
 
-    const inquirySource = (rawInquirySource || '').trim();
+    let inquirySource = (rawInquirySource || '').trim();
+
+    // ✅ Fix: Hardcoded remap for the one GHL source label that breaks Notion
+    if (inquirySource.toLowerCase().includes("q&a & communications")) {
+      inquirySource = 'ATI Community';
+    }
 
     // 🔍 DEBUG LOG
-    console.log(`🔍 Inquiry Source used directly: [${inquirySource}]`);
+    console.log(`🔍 Inquiry Source used: [${inquirySource}]`);
     console.log('All customData keys:', Object.keys(req.body.customData || {}));
 
     const response = await notion.pages.create({
