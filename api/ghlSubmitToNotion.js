@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
     console.log('Webhook Payload:', req.body);
 
     const {
-      name,                    // ✅ lowercase
+      Name,                    // ✅ lowercase
       inquiry_source,
       inquiryType,
       inquiryText,
@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
       parent: { database_id: process.env.NOTION_DATABASE_ID },
       properties: {
         'Name': {
-          title: [{ type: 'text', text: { content: name || '' } }]
+          title: [{ type: 'text', text: { content: Name || '' } }]
         },
         'Source': {
           select: { name: inquiry_source || 'Other' }
