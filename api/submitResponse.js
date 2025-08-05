@@ -7,10 +7,11 @@ module.exports = async (req, res) => {
   try {
     const { id, gptResponse, finalResponse, newStatus } = req.body;
 
-    // 🔍 Step 1: Retrieve Notion page to get Name + Source
+    // 🔍 Step 1: Retrieve Notion page to get Name, Source, and Inquiry Text
     const page = await notion.pages.retrieve({ page_id: id });
     const name = page.properties.Name?.title[0]?.text?.content || '(No Name)';
     const source = page.properties.Source?.select?.name || '(No Source)';
+    const originalInquiry = page.properties['Inquiry Text']?.rich_text?.[0]?.text?.content || '(No Inquiry Provided)';
 
     // ✅ Decide Status: use "Skipped" if finalResponse is "skip" (case-insensitive), otherwise default
     const statusValue =
@@ -42,8 +43,9 @@ module.exports = async (req, res) => {
       }
 
       const slackRes = await axios.post(slackWebhookUrl, {
-        text: `✅ *New Approved Response Submitted*\n👤 *Name:* ${name}\n💬 *Source:* ${source}\n🧠 *Response:* ${finalResponse}`
+        text: `✅ *New Approved Response Submitted*\n👤 *Name:* ${name}\n💬 *Source:* ${source}\n❓ *Inquiry:* ${originalInquiry}\n🧠 *Response:* ${finalResponse}`
       });
+
       console.log('Slack posted:', slackRes.status, slackRes.data);
     } catch (slackError) {
       console.error('Slack notification failed:', slackError.message);
