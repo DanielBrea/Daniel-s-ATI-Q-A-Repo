@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     const statusValue =
       (finalResponse || '').trim().toLowerCase() === 'skip'
         ? 'Skipped'
-        : newStatus || 'Approved To Submit To Client';
+        : 'Approved To Submit To Client';
 
     // 📝 Step 2: Update Notion properties
     await notion.pages.update({
