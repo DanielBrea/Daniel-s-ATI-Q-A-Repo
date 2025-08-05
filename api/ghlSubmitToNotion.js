@@ -1,5 +1,4 @@
 const { Client } = require('@notionhq/client');
-
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 module.exports = async (req, res) => {
@@ -8,39 +7,42 @@ module.exports = async (req, res) => {
   }
 
   try {
-    console.log('Webhook Payload:', req.body);
+    const payload = req.body;
+    const custom = payload.customData || {};
 
-    const {
-      Name,
-      inquiryType,
-      inquiryText,
-      adminNotes,
-      ['Inquiry Source']: rawInquirySource // ✅ Fix: correct key from payload
-    } = req.body.customData || {};
+    // Debug
+    console.log('Payload Keys:', Object.keys(payload));
+    console.log('CustomData Keys:', Object.keys(custom));
 
-    const inquirySource = (rawInquirySource || '').trim(); // ✅ Clean it
+    // Find the value that looks like a dropdown
+    const allDropdownKeys = Object.keys(custom).filter(key =>
+      ['source', 'Source', 'inquiry source', 'Inquiry Source', 'How did you hear', 'platform'].some(x =>
+        key.toLowerCase().includes(x.toLowerCase())
+      )
+    );
 
-    // 🔍 DEBUG LOGS
-    console.log(`🔍 Inquiry Source used: [${inquirySource}]`);
-    console.log('All customData keys:', Object.keys(req.body.customData || {}));
+    const guessedSourceKey = allDropdownKeys[0]; // fallback to first match
+    const inquirySource = (guessedSourceKey && custom[guessedSourceKey]) ? custom[guessedSourceKey].trim() : 'Other';
+
+    console.log(`🔍 Guessed Source Key: [${guessedSourceKey}] → Value: [${inquirySource}]`);
 
     const response = await notion.pages.create({
       parent: { database_id: process.env.NOTION_DATABASE_ID },
       properties: {
         'Name': {
-          title: [{ type: 'text', text: { content: Name || '' } }]
+          title: [{ type: 'text', text: { content: custom.Name || '' } }]
         },
         'Source': {
-          select: { name: inquirySource || 'Other' } // ✅ No mapping logic needed
+          select: { name: inquirySource || 'Other' }
         },
         'Inquiry Type': {
-          select: { name: inquiryType || 'Question (Tech Support)' }
+          select: { name: custom.inquiryType || 'Question (Tech Support)' }
         },
         'Inquiry Text': {
-          rich_text: [{ type: 'text', text: { content: inquiryText || '' } }]
+          rich_text: [{ type: 'text', text: { content: custom.inquiryText || '' } }]
         },
         'Admin Notes / Comments': {
-          rich_text: [{ type: 'text', text: { content: adminNotes || '' } }]
+          rich_text: [{ type: 'text', text: { content: custom.adminNotes || '' } }]
         },
         'Status': {
           select: { name: 'Needs Review' }
@@ -50,7 +52,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ success: true, id: response.id });
   } catch (err) {
-    console.error('Notion write error:', err.message);
+    console.error('🚨 Notion write error:', err.message);
     res.status(500).json({ error: err.message });
   }
 };
