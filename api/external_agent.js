@@ -1,4 +1,4 @@
-const { OpenAI } = require("openai");
+const OpenAI = require("openai");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -12,34 +12,35 @@ export default async function handler(req, res) {
   const { query } = req.body;
 
   if (!query) {
-    return res.status(400).json({ error: "Missing query in request body" });
+    return res.status(400).json({ error: "Missing 'query' in request body" });
   }
 
   try {
-    const response = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
         {
           role: "system",
           content: `
-You are a general-purpose AI assistant with access to your full pretraining and general world knowledge.
-Feel free to draw from your internal model, factual understanding, or past training data.
-If the user is asking for something current (e.g., “latest” or “2025” or “this week”), answer to the best of your ability with a disclaimer if unsure.
+You are a general-purpose AI assistant with full access to your pretraining knowledge.
+You are allowed to make informed estimates, provide general facts, and answer questions based on your internal model.
 
-This is the only agent in the system allowed to hallucinate, generalize, or reason based on your own training. Act smart and helpful.
+You may use past data and general world knowledge to answer questions.
+Only disclaim if the request is extremely time-sensitive or if you're completely unsure.
           `
         },
         {
           role: "user",
           content: query
         }
-      ]
+      ],
+      temperature: 0.7
     });
 
-    const result = response.choices[0].message.content;
+    const result = completion.choices[0].message.content;
     return res.status(200).json({ result });
   } catch (error) {
-    console.error("OpenAI API error:", error);
-    return res.status(500).json({ error: "Something went wrong calling the external agent." });
+    console.error("OpenAI API Error:", error);
+    return res.status(500).json({ error: "Error calling external agent." });
   }
 }
